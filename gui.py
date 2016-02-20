@@ -5,8 +5,8 @@ import wx.lib.buttons as buttons
 import os
 import mustag
 
-dirName = os.path.dirname(os.path.abspath(__file__))
-bitmapDir = os.path.join(dirName, 'bitmaps')
+DIR_NAME = os.path.dirname(os.path.abspath(__file__))
+BITMAP_DIR = os.path.join(DIR_NAME, 'bitmaps')
 
 
 class MainPanel(wx.Panel):
@@ -43,12 +43,6 @@ class MainPanel(wx.Panel):
         main_sizer.Add(self.create_bottom_half(), 0, wx.ALL, 5)
         return main_sizer
 
-    def create_bottom_half(self):
-        bottom_half_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        bottom_half_sizer.Add(self.create_player_area_sizer(), 0, wx.ALL, 5)
-        bottom_half_sizer.Add(self.create_player_taglist(), 0, wx.ALL, 5)
-        return bottom_half_sizer
-
     def create_top_half(self):
         top_half_sizer = wx.BoxSizer(wx.HORIZONTAL)
         top_half_sizer.Add(self.create_list_area_sizer(), 0, wx.ALL, 5)
@@ -67,6 +61,12 @@ class MainPanel(wx.Panel):
         list_area_sizer.Add(wx.StaticText(self, label="Genre"), 0, wx.ALL, 5)
         list_area_sizer.Add(wx.StaticText(self, label="Tags of this song"), 0, wx.ALL, 5)
         return list_area_sizer
+
+    def create_bottom_half(self):
+        bottom_half_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        bottom_half_sizer.Add(self.create_player_area_sizer(), 0, wx.ALL, 5)
+        bottom_half_sizer.Add(self.create_player_taglist(), 0, wx.ALL, 5)
+        return bottom_half_sizer
 
     def create_player_area_sizer(self):
         player_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -90,35 +90,36 @@ class MainPanel(wx.Panel):
     def build_audio_bar(self):
         audio_bar_sizer = wx.BoxSizer(wx.HORIZONTAL)
  
-        self.build_btn({'bitmap': 'player_prev.png', 'handler': self.on_skip_prev_song, 'name': 'prev'}, audio_bar_sizer)
+        self.build_btn({'bitmap': 'player_prev.png', 'handler': self.on_skip_prev_song, 'name': 'prev'},
+                       audio_bar_sizer)
  
         # create play/pause toggle button
-        img = wx.Bitmap(os.path.join(bitmapDir, "player_play.png"))
+        img = wx.Bitmap(os.path.join(BITMAP_DIR, "player_play.png"))
         self.playPauseBtn = buttons.GenBitmapToggleButton(self, bitmap=img, name="play")
         self.playPauseBtn.Enable(False)
  
-        img = wx.Bitmap(os.path.join(bitmapDir, "player_pause.png"))
+        img = wx.Bitmap(os.path.join(BITMAP_DIR, "player_pause.png"))
         self.playPauseBtn.SetBitmapSelected(img)
         self.playPauseBtn.SetInitialSize()
  
         self.playPauseBtn.Bind(wx.EVT_BUTTON, self.on_play_song)
         audio_bar_sizer.Add(self.playPauseBtn, 0, wx.LEFT, 3)
  
-        btn_data = [{'bitmap':'player_stop.png',
-                    'handler':self.on_stop, 'name': 'stop'},
-                    {'bitmap':'player_next.png',
-                     'handler':self.on_skip_song_forward, 'name': 'next'}]
+        btn_data = [{'bitmap': 'player_stop.png',
+                    'handler': self.on_stop, 'name': 'stop'},
+                    {'bitmap': 'player_next.png',
+                     'handler': self.on_skip_song_forward, 'name': 'next'}]
         for btn in btn_data:
             self.build_btn(btn, audio_bar_sizer)
  
         return audio_bar_sizer
 
-    def build_btn(self, btnDict, sizer):
-        bmp = btnDict['bitmap']
-        handler = btnDict['handler']
+    def build_btn(self, btn_dict, sizer):
+        bmp = btn_dict['bitmap']
+        handler = btn_dict['handler']
  
-        img = wx.Bitmap(os.path.join(bitmapDir, bmp))
-        btn = buttons.GenBitmapButton(self, bitmap=img, name=btnDict['name'])
+        img = wx.Bitmap(os.path.join(BITMAP_DIR, bmp))
+        btn = buttons.GenBitmapButton(self, bitmap=img, name=btn_dict['name'])
         btn.SetInitialSize()
         btn.Bind(wx.EVT_BUTTON, handler)
         sizer.Add(btn, 0, wx.LEFT, 3)
@@ -143,9 +144,9 @@ class MainPanel(wx.Panel):
             self.playbackSlider.SetRange(0, self.mediaPlayer.Length())
             self.playPauseBtn.Enable(True)
 
-    def load_library(self, musicFile):
-        if not self.mediaPlayer.Load(musicFile):
-            wx.MessageBox("Unable to load %s: Unsupported format?" % musicFile,
+    def load_library(self, music_file):
+        if not self.mediaPlayer.Load(music_file):
+            wx.MessageBox("Unable to load %s: Unsupported format?" % music_file,
                           "ERROR",
                           wx.ICON_ERROR | wx.OK)
         else:
