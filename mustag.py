@@ -1,11 +1,11 @@
 import os
 import json
-
+import io
 
 class Mustag:
 
     def __init__(self):
-        self.basedir = 'c:\\mp3_experiment'
+        self.basedir = u'c:\\mp3_experiment'
         self.meta_extension = '.mustag'
         self.collection = dict()
 
@@ -25,7 +25,7 @@ class Mustag:
             for file_name in files:
                 if file_name.endswith(".mp3"):
                     file_path = os.path.join(root, file_name)
-                    print(file_path.encode('unicode-escape'))
+                    #print(file_path.encode('unicode-escape'))
                     item = self.library_add(file_path, file_name)
                     self.create_music_metadata(item)
 
@@ -39,16 +39,18 @@ class Mustag:
         return item
 
     def library_add_from_metafile(self, file_path):
-        f = open(file_path, 'r')
+        f = io.open(file_path, 'r', encoding='utf8')
         str = f.read()
+        f.close()
+        print "Gummi: " + str
         item = json.loads(str)
         self.collection[file_path] = item
         return item
 
     def create_music_metadata(self, item):
         metadata_filename = item['filepath'] + self.meta_extension
-        f = open(metadata_filename, 'w')
-        json_str = json.dumps(item)
+        f = io.open(metadata_filename, 'w', encoding='utf8')
+        json_str = unicode(json.dumps(item, ensure_ascii=False))
         f.write(json_str)
         f.close()
 
@@ -59,3 +61,7 @@ class Mustag:
     # show a detail view of a song with buttons to toggle each tag
 
     # perform screen: toggle tags and songs will be randomly selected
+
+if __name__ == "__main__":
+    t = Mustag()
+    t.import_music()

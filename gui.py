@@ -219,7 +219,7 @@ class MainPanel(wx.Panel):
 
     def create_songlist_section(self):
         self.list_ctrl = wx.ListCtrl(self, style=wx.LC_REPORT)
-        self.list_ctrl.InsertColumn(0, 'Filename', width=125)
+        self.list_ctrl.InsertColumn(0, 'Filename', width=500)
         self.list_ctrl.InsertColumn(1, 'Genre', width=125)
         self.list_ctrl.InsertColumn(2, 'Tags', width=125)
         return self.list_ctrl
