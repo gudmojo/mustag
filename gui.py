@@ -33,28 +33,53 @@ class MainPanel(wx.Panel):
             self.Destroy()
             raise
  
-        # create playback slider
+        self.SetSizer(self.create_main_sizer())
+        self.Layout()
+
+    def create_main_sizer(self):
+        main_sizer = wx.BoxSizer(wx.VERTICAL)
+        # layout widgets
+        main_sizer.Add(self.create_top_half(), 0, wx.ALL, 5)
+        main_sizer.Add(self.create_player_area_sizer(), 0, wx.ALL, 5)
+        return main_sizer
+
+    def create_top_half(self):
+        top_half_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        top_half_sizer.Add(self.create_list_area_sizer(), 0, wx.ALL, 5)
+        top_half_sizer.Add(self.create_song_details_sizer(), 0, wx.ALL, 5)
+        return top_half_sizer
+
+    def create_list_area_sizer(self):
+        list_area_sizer = wx.BoxSizer(wx.VERTICAL)
+        list_area_sizer.Add(self.create_filter_section(), 0, wx.ALL, 5)
+        list_area_sizer.Add(self.create_songlist_section(), 0, wx.ALL, 5)
+        return list_area_sizer
+
+    def create_song_details_sizer(self):
+        list_area_sizer = wx.BoxSizer(wx.VERTICAL)
+        list_area_sizer.Add(wx.StaticText(self, label="Filename"), 0, wx.ALL, 5)
+        list_area_sizer.Add(wx.StaticText(self, label="Genre"), 0, wx.ALL, 5)
+        list_area_sizer.Add(wx.StaticText(self, label="Tags of this song"), 0, wx.ALL, 5)
+        return list_area_sizer
+
+    def create_player_area_sizer(self):
+        player_sizer = wx.BoxSizer(wx.VERTICAL)
+
         self.playbackSlider = wx.Slider(self, size=wx.DefaultSize)
         self.Bind(wx.EVT_SLIDER, self.on_seek, self.playbackSlider)
- 
+
         self.volumeCtrl = wx.Slider(self, style=wx.SL_VERTICAL|wx.SL_INVERSE)
         self.volumeCtrl.SetRange(0, 100)
         self.volumeCtrl.SetValue(self.currentVolume)
         self.volumeCtrl.Bind(wx.EVT_SLIDER, self.on_set_volume)
- 
-        # Create sizers
-        main_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        player_sizer.Add(self.playbackSlider, 1, wx.ALL|wx.EXPAND, 5)
+        audio_sizer = self.build_audio_bar()
         h_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        audioSizer = self.build_audio_bar()
- 
-        # layout widgets
-        main_sizer.Add(self.playbackSlider, 1, wx.ALL|wx.EXPAND, 5)
-        h_sizer.Add(audioSizer, 0, wx.ALL|wx.CENTER, 5)
+        h_sizer.Add(audio_sizer, 0, wx.ALL|wx.CENTER, 5)
         h_sizer.Add(self.volumeCtrl, 0, wx.ALL, 5)
-        main_sizer.Add(h_sizer)
- 
-        self.SetSizer(main_sizer)
-        self.Layout()
+        player_sizer.Add(h_sizer)
+        return player_sizer
 
     def build_audio_bar(self):
         audio_bar_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -171,7 +196,15 @@ class MainPanel(wx.Panel):
         # Keep the player slider updated
         offset = self.mediaPlayer.Tell()
         self.playbackSlider.SetValue(offset)
- 
+
+    def create_filter_section(self):
+        component = wx.StaticText(self, label="Filter")
+        return component
+
+    def create_songlist_section(self):
+        component = wx.StaticText(self, label="Songlist")
+        return component
+
 
 class MainFrame(wx.Frame):
     def __init__(self):
