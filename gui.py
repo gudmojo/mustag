@@ -50,13 +50,13 @@ class MainPanel(wx.Panel):
         return top_half_sizer
 
     def create_list_area_sizer(self):
-        list_area_sizer = wx.BoxSizer(wx.VERTICAL)
+        list_area_sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Collection:'), wx.VERTICAL)
         list_area_sizer.Add(self.create_filter_section(), 0, wx.ALL, 5)
         list_area_sizer.Add(self.create_songlist_section(), 0, wx.ALL, 5)
         return list_area_sizer
 
     def create_song_details_sizer(self):
-        list_area_sizer = wx.BoxSizer(wx.VERTICAL)
+        list_area_sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Song details:'), wx.VERTICAL)
         list_area_sizer.Add(wx.StaticText(self, label="Filename"), 0, wx.ALL, 5)
         list_area_sizer.Add(wx.StaticText(self, label="Genre"), 0, wx.ALL, 5)
         list_area_sizer.Add(wx.StaticText(self, label="Tags of this song"), 0, wx.ALL, 5)
@@ -69,7 +69,7 @@ class MainPanel(wx.Panel):
         return bottom_half_sizer
 
     def create_player_area_sizer(self):
-        player_sizer = wx.BoxSizer(wx.VERTICAL)
+        player_sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Player:'), wx.VERTICAL)
 
         self.playbackSlider = wx.Slider(self, size=wx.DefaultSize)
         self.Bind(wx.EVT_SLIDER, self.on_seek, self.playbackSlider)
@@ -205,7 +205,7 @@ class MainPanel(wx.Panel):
         self.playbackSlider.SetValue(offset)
 
     def create_filter_section(self):
-        component = wx.StaticText(self, label="Filter")
+        component = wx.CheckBox(self, label="Filter")
         return component
 
     def create_songlist_section(self):
@@ -213,8 +213,9 @@ class MainPanel(wx.Panel):
         return component
 
     def create_player_taglist(self):
-        component = wx.StaticText(self, label="Songlist")
-        return component
+        sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Player taglist:'), wx.VERTICAL)
+        sizer.Add(wx.StaticText(self, label="Songlist"), 0, wx.ALL, 5)
+        return sizer
 
 
 class MainFrame(wx.Frame):
