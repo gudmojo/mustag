@@ -1,10 +1,4 @@
 #!/usr/bin/python
-# -*- coding: <<encoding>> -*-
-#-------------------------------------------------------------------------------
-#   <<project>>
-# 
-#-------------------------------------------------------------------------------
-
 import wx, wx.html
 import sys
 import wx.media
@@ -17,11 +11,8 @@ bitmapDir = os.path.join(dirName, 'bitmaps')
 
 
 class MainPanel(wx.Panel):
-	""""""
- 
-	#----------------------------------------------------------------------
+
 	def __init__(self, parent):
-		"""Constructor"""
 		wx.Panel.__init__(self, parent=parent)
  
 		self.frame = parent
@@ -36,12 +27,7 @@ class MainPanel(wx.Panel):
 		self.Bind(wx.EVT_TIMER, self.onTimer)
 		self.timer.Start(100)
  
-	#----------------------------------------------------------------------
 	def layoutControls(self):
-		"""
-		Create and layout the widgets
-		"""
- 
 		try:
 			self.mediaPlayer = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER)
 		except NotImplementedError:
@@ -71,11 +57,8 @@ class MainPanel(wx.Panel):
 		self.SetSizer(mainSizer)
 		self.Layout()
  
-	#----------------------------------------------------------------------
+
 	def buildAudioBar(self):
-		"""
-		Builds the audio bar controls
-		"""
 		audioBarSizer = wx.BoxSizer(wx.HORIZONTAL)
  
 		self.buildBtn({'bitmap':'player_prev.png', 'handler':self.onPrev,
@@ -103,9 +86,8 @@ class MainPanel(wx.Panel):
  
 		return audioBarSizer
  
-	#----------------------------------------------------------------------
+
 	def buildBtn(self, btnDict, sizer):
-		""""""
 		bmp = btnDict['bitmap']
 		handler = btnDict['handler']
  
@@ -115,11 +97,8 @@ class MainPanel(wx.Panel):
 		btn.Bind(wx.EVT_BUTTON, handler)
 		sizer.Add(btn, 0, wx.LEFT, 3)
  
-	#----------------------------------------------------------------------
+
 	def createMenu(self):
-		"""
-		Creates a menu
-		"""
 		menubar = wx.MenuBar()
  
 		fileMenu = wx.Menu()
@@ -129,13 +108,9 @@ class MainPanel(wx.Panel):
 		self.frame.SetMenuBar(menubar)
 		self.frame.Bind(wx.EVT_MENU, self.onImportMusic, import_music_menu_item)
 		self.frame.Bind(wx.EVT_MENU, self.onReloadSettingsFile, reload_settings_file_menu_item)
- 
-	#----------------------------------------------------------------------
+
+		
 	def loadMusic(self, musicFile):
-		"""
-		Load the music into the MediaCtrl or display an error dialog
-		if the user tries to load an unsupported file type
-		"""
 		if not self.mediaPlayer.Load(musicFile):
 			wx.MessageBox("Unable to load %s: Unsupported format?" % musicFile,
 						  "ERROR",
@@ -145,13 +120,9 @@ class MainPanel(wx.Panel):
 			self.GetSizer().Layout()
 			self.playbackSlider.SetRange(0, self.mediaPlayer.Length())
 			self.playPauseBtn.Enable(True)
- 
-	#----------------------------------------------------------------------
+
+			
 	def loadLibrary(self, musicFile):
-		"""
-		Load the music into the MediaCtrl or display an error dialog
-		if the user tries to load an unsupported file type
-		"""
 		if not self.mediaPlayer.Load(musicFile):
 			wx.MessageBox("Unable to load %s: Unsupported format?" % musicFile,
 						  "ERROR",
@@ -161,40 +132,25 @@ class MainPanel(wx.Panel):
 			self.GetSizer().Layout()
 			self.playbackSlider.SetRange(0, self.mediaPlayer.Length())
 			self.playPauseBtn.Enable(True)
- 
-	#----------------------------------------------------------------------
+
+
 	def onImportMusic(self, event):
-		"""
-		Not implemented!
-		"""
 		pass
  
-	#----------------------------------------------------------------------
+
 	def onReloadSettingsFile(self, event):
-		"""
-		Not implemented!
-		"""
 		pass
  
-	#----------------------------------------------------------------------
+
 	def onNext(self, event):
-		"""
-		Not implemented!
-		"""
 		pass
  
-	#----------------------------------------------------------------------
+
 	def onPause(self):
-		"""
-		Pauses the music
-		"""
 		self.mediaPlayer.Pause()
- 
-	#----------------------------------------------------------------------
+
+
 	def onPlay(self, event):
-		"""
-		Plays the music
-		"""
 		if not event.GetIsDown():
 			self.onPause()
 			return
@@ -210,59 +166,40 @@ class MainPanel(wx.Panel):
  
 		event.Skip()
  
-	#----------------------------------------------------------------------
+
 	def onPrev(self, event):
-		"""
-		Not implemented!
-		"""
 		pass
  
-	#----------------------------------------------------------------------
+
 	def onSeek(self, event):
-		"""
-		Seeks the media file according to the amount the slider has
-		been adjusted.
-		"""
 		offset = self.playbackSlider.GetValue()
 		self.mediaPlayer.Seek(offset)
  
-	#----------------------------------------------------------------------
+
 	def onSetVolume(self, event):
-		"""
-		Sets the volume of the music player
-		"""
 		self.currentVolume = self.volumeCtrl.GetValue()
 		print "setting volume to: %s" % int(self.currentVolume)
 		self.mediaPlayer.SetVolume(self.currentVolume)
  
-	#----------------------------------------------------------------------
+
 	def onStop(self, event):
-		"""
-		Stops the music and resets the play button
-		"""
 		self.mediaPlayer.Stop()
 		self.playPauseBtn.SetToggle(False)
  
-	#----------------------------------------------------------------------
+
 	def onTimer(self, event):
-		"""
-		Keeps the player slider updated
-		"""
+		# Keep the player slider updated
 		offset = self.mediaPlayer.Tell()
 		self.playbackSlider.SetValue(offset)
  
-########################################################################
+
 class MainFrame(wx.Frame):
- 
-	#----------------------------------------------------------------------
-	def __init__(self):
+ 	def __init__(self):
 		wx.Frame.__init__(self, None, wx.ID_ANY, "the mustag", pos=(10,10), size=(1500,800))
 		panel = MainPanel(self)
 
 
-
-app = wx.App(redirect=False)   # Error messages go to popup window
-#top = Frame("<<project>>")
+app = wx.App(redirect=False)
 top = MainFrame()
 top.Show()
 app.MainLoop()
