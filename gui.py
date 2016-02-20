@@ -40,8 +40,14 @@ class MainPanel(wx.Panel):
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         # layout widgets
         main_sizer.Add(self.create_top_half(), 0, wx.ALL, 5)
-        main_sizer.Add(self.create_player_area_sizer(), 0, wx.ALL, 5)
+        main_sizer.Add(self.create_bottom_half(), 0, wx.ALL, 5)
         return main_sizer
+
+    def create_bottom_half(self):
+        bottom_half_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        bottom_half_sizer.Add(self.create_player_area_sizer(), 0, wx.ALL, 5)
+        bottom_half_sizer.Add(self.create_player_taglist(), 0, wx.ALL, 5)
+        return bottom_half_sizer
 
     def create_top_half(self):
         top_half_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -202,6 +208,10 @@ class MainPanel(wx.Panel):
         return component
 
     def create_songlist_section(self):
+        component = wx.StaticText(self, label="Songlist")
+        return component
+
+    def create_player_taglist(self):
         component = wx.StaticText(self, label="Songlist")
         return component
 
