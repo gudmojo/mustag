@@ -7,7 +7,7 @@ class Mustag:
     def __init__(self):
         self.basedir = 'c:\\mp3_experiment'
         self.meta_extension = '.mustag'
-        self.library = dict()
+        self.collection = dict()
 
     # find all db files in basedir and load them into memory
     def load_meta_from_disk(self):
@@ -15,7 +15,7 @@ class Mustag:
             for file in files:
                 if file.endswith(self.meta_extension):
                     file_path = os.path.join(root, file)
-                    self.library_add(file_path, file)
+                    self.library_add_from_metafile(file_path)
 
     # load legal tags from file, including color
 
@@ -35,7 +35,14 @@ class Mustag:
             'filepath': file_path,
             'tags': []
         }
-        self.library[file_path] = item
+        self.collection[file_path] = item
+        return item
+
+    def library_add_from_metafile(self, file_path):
+        f = open(file_path, 'r')
+        str = f.read()
+        item = json.loads(str)
+        self.collection[file_path] = item
         return item
 
     def create_music_metadata(self, item):

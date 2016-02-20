@@ -20,12 +20,21 @@ class MainPanel(wx.Panel):
         self.layout_controls()
         self.library = mustag.Mustag()
         self.library.load_meta_from_disk()
+        self.populate_collection_ui()
         self.load_music('c:\\mp3_experiment\\WALK THE MOON - Shut Up and Dance.mp3')
   
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer)
         self.timer.Start(100)
- 
+
+    def populate_collection_ui(self):
+        rowix = 0
+        for item in self.library.collection.values():
+            self.list_ctrl.InsertStringItem(rowix, item['filename'])
+            self.list_ctrl.SetStringItem(rowix, 1, "01/19/2010")
+            self.list_ctrl.SetStringItem(rowix, 2, "USA")
+            rowix += 1
+
     def layout_controls(self):
         try:
             self.mediaPlayer = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER)
@@ -209,8 +218,11 @@ class MainPanel(wx.Panel):
         return component
 
     def create_songlist_section(self):
-        component = wx.StaticText(self, label="Songlist")
-        return component
+        self.list_ctrl = wx.ListCtrl(self, style=wx.LC_REPORT)
+        self.list_ctrl.InsertColumn(0, 'Filename', width=125)
+        self.list_ctrl.InsertColumn(1, 'Genre', width=125)
+        self.list_ctrl.InsertColumn(2, 'Tags', width=125)
+        return self.list_ctrl
 
     def create_player_taglist(self):
         sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Player taglist:'), wx.VERTICAL)
