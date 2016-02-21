@@ -30,7 +30,9 @@ class MainPanel(wx.Panel):
 
     def populate_collection_ui(self):
         rowix = 0
+        self.items_by_id = dict()
         for item in self.library.collection.values():
+            self.items_by_id[rowix] = item
             filename = item['filename']
             self.list_ctrl.InsertStringItem(rowix, filename)
             filepath = item['filepath']
@@ -226,6 +228,13 @@ class MainPanel(wx.Panel):
         offset = self.mediaPlayer.Tell()
         self.playbackSlider.SetValue(offset)
 
+    def on_activate_song_in_list(self, event):
+        t = event.GetItem()
+        id = t.Id
+        item = self.items_by_id[id]
+        self.load_music(item['filepath'])
+
+
     def create_filter_section(self):
         component = wx.CheckBox(self, label="Filter")
         return component
@@ -235,6 +244,8 @@ class MainPanel(wx.Panel):
         self.list_ctrl.InsertColumn(0, 'Filename', width=500)
         self.list_ctrl.InsertColumn(1, 'Genre', width=175)
         self.list_ctrl.InsertColumn(2, 'Tags', width=125)
+        self.frame.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.on_activate_song_in_list, self.list_ctrl)
+
         return self.list_ctrl
 
     def create_player_taglist(self):
