@@ -4,6 +4,7 @@ import wx.media
 import wx.lib.buttons as buttons
 import os
 import mustag
+from eyed3 import id3
 
 DIR_NAME = os.path.dirname(os.path.abspath(__file__))
 BITMAP_DIR = os.path.join(DIR_NAME, 'bitmaps')
@@ -30,10 +31,22 @@ class MainPanel(wx.Panel):
     def populate_collection_ui(self):
         rowix = 0
         for item in self.library.collection.values():
-            self.list_ctrl.InsertStringItem(rowix, item['filename'])
-            self.list_ctrl.SetStringItem(rowix, 1, "01/19/2010")
+            filename = item['filename']
+            self.list_ctrl.InsertStringItem(rowix, filename)
+            filepath = item['filepath']
+            genre = self.get_genre(filepath)
+            self.list_ctrl.SetStringItem(rowix, 1, genre)
             self.list_ctrl.SetStringItem(rowix, 2, "USA")
             rowix += 1
+
+    def get_genre(self, filepath):
+        try:
+            tag = id3.Tag()
+            tag.parse(filepath)
+            genre = tag.genre.name
+            return genre
+        except:
+            return "ERROR"
 
     def layout_controls(self):
         try:
@@ -220,7 +233,7 @@ class MainPanel(wx.Panel):
     def create_songlist_section(self):
         self.list_ctrl = wx.ListCtrl(self, style=wx.LC_REPORT)
         self.list_ctrl.InsertColumn(0, 'Filename', width=500)
-        self.list_ctrl.InsertColumn(1, 'Genre', width=125)
+        self.list_ctrl.InsertColumn(1, 'Genre', width=175)
         self.list_ctrl.InsertColumn(2, 'Tags', width=125)
         return self.list_ctrl
 

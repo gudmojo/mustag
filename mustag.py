@@ -42,7 +42,6 @@ class Mustag:
         f = io.open(file_path, 'r', encoding='utf8')
         str = f.read()
         f.close()
-        print "Gummi: " + str
         item = json.loads(str)
         self.collection[file_path] = item
         return item
