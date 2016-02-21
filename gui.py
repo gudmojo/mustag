@@ -52,10 +52,11 @@ class MainPanel(wx.Panel):
 
     def layout_controls(self):
         try:
-            self.mediaPlayer = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER)
+            self.mediaPlayer = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER, szBackend=wx.media.MEDIABACKEND_WMP10)
         except NotImplementedError:
             self.Destroy()
             raise
+        self.Bind(wx.media.EVT_MEDIA_LOADED, self.on_song_is_loaded)
  
         self.SetSizer(self.create_main_sizer())
         self.Layout()
@@ -168,17 +169,6 @@ class MainPanel(wx.Panel):
             self.playbackSlider.SetRange(0, self.mediaPlayer.Length())
             self.playPauseBtn.Enable(True)
 
-    def load_library(self, music_file):
-        if not self.mediaPlayer.Load(music_file):
-            wx.MessageBox("Unable to load %s: Unsupported format?" % music_file,
-                          "ERROR",
-                          wx.ICON_ERROR | wx.OK)
-        else:
-            self.mediaPlayer.SetInitialSize()
-            self.GetSizer().Layout()
-            self.playbackSlider.SetRange(0, self.mediaPlayer.Length())
-            self.playPauseBtn.Enable(True)
-
     def on_import_music(self, event):
         pass
 
@@ -195,7 +185,7 @@ class MainPanel(wx.Panel):
         if not event.GetIsDown():
             self.on_pause_song()
             return
- 
+
         if not self.mediaPlayer.Play():
             wx.MessageBox("Unable to Play media : Unsupported format?",
                           "ERROR",
@@ -206,10 +196,13 @@ class MainPanel(wx.Panel):
             self.playbackSlider.SetRange(0, self.mediaPlayer.Length())
  
         event.Skip()
+
+    def on_song_is_loaded(self, event):
+        self.mediaPlayer.Play()
  
     def on_skip_prev_song(self, event):
         pass
- 
+
     def on_seek(self, event):
         offset = self.playbackSlider.GetValue()
         self.mediaPlayer.Seek(offset)
@@ -229,11 +222,11 @@ class MainPanel(wx.Panel):
         self.playbackSlider.SetValue(offset)
 
     def on_activate_song_in_list(self, event):
-        t = event.GetItem()
-        id = t.Id
+        id = event.GetItem().Id
         item = self.items_by_id[id]
         self.load_music(item['filepath'])
-
+        self.playPauseBtn.SetValue(True)
+        event.Skip()
 
     def create_filter_section(self):
         component = wx.CheckBox(self, label="Filter")
