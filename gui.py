@@ -22,8 +22,7 @@ class MainPanel(wx.Panel):
         self.library = mustag.Mustag()
         self.library.load_meta_from_disk()
         self.populate_collection_ui()
-        self.load_music('c:\\mp3_experiment\\WALK THE MOON - Shut Up and Dance.mp3')
-  
+
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer)
         self.timer.Start(100)
@@ -34,9 +33,9 @@ class MainPanel(wx.Panel):
         for item in self.library.collection.values():
             self.items_by_id[rowix] = item
             filename = item['filename']
+            file_path = item['filepath']
             self.list_ctrl.InsertStringItem(rowix, filename)
-            filepath = item['filepath']
-            genre = self.get_genre(filepath)
+            genre = self.get_genre(file_path)
             self.list_ctrl.SetStringItem(rowix, 1, genre)
             self.list_ctrl.SetStringItem(rowix, 2, "USA")
             rowix += 1
@@ -81,11 +80,15 @@ class MainPanel(wx.Panel):
         return list_area_sizer
 
     def create_song_details_sizer(self):
-        list_area_sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Song details:'), wx.VERTICAL)
-        list_area_sizer.Add(wx.StaticText(self, label="Filename"), 0, wx.ALL, 5)
-        list_area_sizer.Add(wx.StaticText(self, label="Genre"), 0, wx.ALL, 5)
-        list_area_sizer.Add(wx.StaticText(self, label="Tags of this song"), 0, wx.ALL, 5)
-        return list_area_sizer
+        sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Song details:'), wx.VERTICAL)
+        self.song_details = dict()
+        self.song_details['filename'] = wx.StaticText(self, label="Filename")
+        self.song_details['genre'] = wx.StaticText(self, label="Genre")
+        self.song_details['tags'] = wx.StaticText(self, label="Tags of this song")
+        sizer.Add(self.song_details['filename'], 0, wx.ALL, 5)
+        sizer.Add(self.song_details['genre'], 0, wx.ALL, 5)
+        sizer.Add(self.song_details['tags'], 0, wx.ALL, 5)
+        return sizer
 
     def create_bottom_half(self):
         bottom_half_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -99,12 +102,12 @@ class MainPanel(wx.Panel):
         self.playbackSlider = wx.Slider(self, size=wx.DefaultSize)
         self.Bind(wx.EVT_SLIDER, self.on_seek, self.playbackSlider)
 
-        self.volumeCtrl = wx.Slider(self, style=wx.SL_VERTICAL|wx.SL_INVERSE)
+        self.volumeCtrl = wx.Slider(self, style=wx.SL_VERTICAL | wx.SL_INVERSE)
         self.volumeCtrl.SetRange(0, 100)
         self.volumeCtrl.SetValue(self.currentVolume)
         self.volumeCtrl.Bind(wx.EVT_SLIDER, self.on_set_volume)
 
-        player_sizer.Add(self.playbackSlider, 1, wx.ALL|wx.EXPAND, 5)
+        player_sizer.Add(self.playbackSlider, 1, wx.ALL | wx.EXPAND, 5)
         audio_sizer = self.build_audio_bar()
         h_sizer = wx.BoxSizer(wx.HORIZONTAL)
         h_sizer.Add(audio_sizer, 0, wx.ALL|wx.CENTER, 5)
@@ -226,6 +229,7 @@ class MainPanel(wx.Panel):
         item = self.items_by_id[id]
         self.load_music(item['filepath'])
         self.playPauseBtn.SetValue(True)
+        self.show_song_details(item)
         event.Skip()
 
     def create_filter_section(self):
@@ -245,6 +249,10 @@ class MainPanel(wx.Panel):
         sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Player taglist:'), wx.VERTICAL)
         sizer.Add(wx.StaticText(self, label="Songlist"), 0, wx.ALL, 5)
         return sizer
+
+    def show_song_details(self, item):
+        self.song_details['filename'].Label = item['filename']
+        self.song_details['genre'].Label = item['genre']
 
 
 class MainFrame(wx.Frame):
