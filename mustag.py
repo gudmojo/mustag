@@ -1,6 +1,8 @@
 import os
 import json
 import io
+from eyed3 import id3
+
 
 class Mustag:
 
@@ -43,8 +45,18 @@ class Mustag:
         str = f.read()
         f.close()
         item = json.loads(str)
+        item['genre'] = self.get_genre(item['filepath'])
         self.collection[file_path] = item
         return item
+
+    def get_genre(self, filepath):
+        try:
+            tag = id3.Tag()
+            tag.parse(filepath)
+            genre = tag.genre.name
+            return genre
+        except:
+            return "ERROR"
 
     def create_music_metadata(self, item):
         metadata_filename = item['filepath'] + self.meta_extension
