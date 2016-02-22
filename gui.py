@@ -10,15 +10,11 @@ class MainPanel(wx.Panel):
 
     def __init__(self, parent):
         wx.Panel.__init__(self, parent=parent)
- 
         self.frame = parent
         self.create_menu()
         self.library = mustag.Mustag()
         self.library.load_legal_tags()
         self.library.load_meta_from_disk()
-        self.layout_controls()
-
-    def layout_controls(self):
         self.SetSizer(self.create_main_sizer())
         self.song_list_panel.add_song_activated_listener(self.player_panel.on_song_activated)
         self.song_list_panel.add_song_activated_listener(self.song_details_panel.on_song_activated)
@@ -26,7 +22,6 @@ class MainPanel(wx.Panel):
 
     def create_main_sizer(self):
         main_sizer = wx.BoxSizer(wx.VERTICAL)
-        # layout widgets
         main_sizer.Add(self.create_top_half(), 0, wx.ALL, 5)
         main_sizer.Add(self.create_bottom_half(), 0, wx.ALL, 5)
         return main_sizer
