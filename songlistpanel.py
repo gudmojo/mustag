@@ -2,10 +2,10 @@ import wx
 
 
 class SongListPanel(wx.Panel):
-    def __init__(self, parent, library):
+    def __init__(self, parent, library, activate_song_event):
         wx.Panel.__init__(self, parent=parent)
         self.library = library
-        self.song_activated_listeners = []
+        self.activate_song_event = activate_song_event
         sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Collection:'), wx.VERTICAL)
         sizer.Add(self.create_filter_section(), 0, wx.ALL, 5)
         sizer.Add(self.create_songlist_section(), 0, wx.ALL, 5)
@@ -26,9 +26,8 @@ class SongListPanel(wx.Panel):
 
     def on_activate_song_in_list(self, event):
         id = event.GetItem().Id
-        item = self.items_by_id[id]
-        for listener in self.song_activated_listeners:
-            listener(item)
+        song = self.items_by_id[id]
+        self.activate_song_event(song)
         event.Skip()
 
     def populate_collection_ui(self):
@@ -43,6 +42,3 @@ class SongListPanel(wx.Panel):
             self.list_ctrl.SetStringItem(rowix, 1, genre)
             self.list_ctrl.SetStringItem(rowix, 2, "USA")
             rowix += 1
-
-    def add_song_activated_listener(self, listener):
-        self.song_activated_listeners.append(listener)

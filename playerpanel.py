@@ -7,9 +7,11 @@ BITMAP_DIR = os.path.join(DIR_NAME, 'bitmaps')
 
 
 class PlayerPanel(wx.Panel):
-    def __init__(self, parent):
+    def __init__(self, parent, library, activate_song_event):
         wx.Panel.__init__(self, parent=parent)
         self.frame = parent
+        self.library = library
+        self.activate_song_event = activate_song_event
         try:
             self.mediaPlayer = wx.media.MediaCtrl(self, style=wx.SIMPLE_BORDER, szBackend=wx.media.MEDIABACKEND_WMP10)
         except NotImplementedError:
@@ -17,16 +19,23 @@ class PlayerPanel(wx.Panel):
             raise
         self.currentVolume = 50
         self.Bind(wx.media.EVT_MEDIA_LOADED, self.on_song_is_loaded)
-        self.SetSizer(self.create_player_area_sizer())
+        self.Bind(wx.media.EVT_MEDIA_FINISHED, self.on_song_end)
+        bottom_half_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.right_part = self.create_player_area_sizer()
+        bottom_half_sizer.Add(self.right_part, 0, wx.ALL, 5)
+        bottom_half_sizer.Add(self.create_player_taglist(), 0, wx.ALL, 5)
+        self.SetSizer(bottom_half_sizer)
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer)
         self.timer.Start(100)
+        self.playing_tags = []
 
     def on_song_is_loaded(self, event):
         self.play_it()
 
     def on_skip_song_forward(self, event):
-        pass
+        self.next_song()
+        event.Skip()
 
     def on_pause_song(self):
         self.mediaPlayer.Pause()
@@ -49,22 +58,21 @@ class PlayerPanel(wx.Panel):
             self.GetSizer().Layout()
             self.playbackSlider.SetRange(0, self.mediaPlayer.Length())
 
-
-    def on_skip_prev_song(self, event):
-        pass
-
     def on_seek(self, event):
         offset = self.playbackSlider.GetValue()
         self.mediaPlayer.Seek(offset)
+        event.Skip()
 
     def on_set_volume(self, event):
         self.currentVolume = self.volumeCtrl.GetValue()
         print "setting volume to: %s" % int(self.currentVolume)
         self.mediaPlayer.SetVolume(self.currentVolume)
+        event.Skip()
 
     def on_stop(self, event):
         self.mediaPlayer.Stop()
         self.playPauseBtn.SetToggle(False)
+        event.Skip()
 
     def on_timer(self, event):
         # Keep the player slider updated
@@ -102,9 +110,6 @@ class PlayerPanel(wx.Panel):
     def build_audio_bar(self):
         audio_bar_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.build_btn({'bitmap': 'player_prev.png', 'handler': self.on_skip_prev_song, 'name': 'prev'},
-                       audio_bar_sizer)
-
         # create play/pause toggle button
         img = wx.Bitmap(os.path.join(BITMAP_DIR, "player_play.png"))
         self.playPauseBtn = buttons.GenBitmapToggleButton(self, bitmap=img, name="play")
@@ -139,3 +144,37 @@ class PlayerPanel(wx.Panel):
     def on_song_activated(self, song):
         self.load_music(song['filepath'])
         self.playPauseBtn.SetValue(True)
+
+    def on_song_end(self, event):
+        self.next_song()
+        event.Skip()
+
+    def on_tag_check(self, event):
+        checkbox_ctrl = event.EventObject
+        tag = checkbox_ctrl.Label
+        checked = checkbox_ctrl.Value
+        if checked:
+            self.playing_tags.append(tag)
+        else:
+            while True:
+                try:
+                    self.playing_tags.remove(tag)
+                except ValueError:
+                    break
+        event.Skip()
+
+    def next_song(self):
+        song = self.library.next_song(self.playing_tags)
+        self.activate_song_event(song)
+
+    def create_player_taglist(self):
+        sizer = wx.GridSizer(cols=2, vgap=0, hgap=0)
+        tags = self.library.get_legal_tags()
+        self.tag_checkboxes = dict()
+        for tag in tags:
+            tagname = tag['name']
+            check_box = wx.CheckBox(self, label=tagname)
+            self.tag_checkboxes[tagname] = check_box
+            sizer.Add(check_box, 0, wx.ALL, 5)
+            self.Bind(wx.EVT_CHECKBOX, self.on_tag_check, check_box)
+        return sizer

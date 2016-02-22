@@ -7,8 +7,9 @@ class SongDetailsPanel(wx.Panel):
         self.library = library
         self.selected_song = None
         sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Song details:'), wx.VERTICAL)
-        self.filename_label = wx.StaticText(self, label="Filename")
-        self.genre_label = wx.StaticText(self, label="Genre")
+        dummy = "______________________________________________________________________________________________________"
+        self.filename_label = wx.StaticText(self, label=dummy)
+        self.genre_label = wx.StaticText(self, label=dummy)
         sizer.Add(self.filename_label, 0, wx.ALL, 5)
         sizer.Add(self.genre_label, 0, wx.ALL, 5)
         sizer.Add(self.create_details_tag_area(), 0, wx.ALL, 5)

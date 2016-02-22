@@ -2,6 +2,7 @@ import os
 import json
 import io
 from eyed3 import id3
+import random
 
 
 class Mustag:
@@ -82,6 +83,21 @@ class Mustag:
     def get_legal_tags(self):
         active = self.legal_tags['active_taglist']
         return self.legal_tags['taglists'][active]
+
+    def next_song(self, active_tags):
+        candidates = []
+        for song in self.collection.values():
+            if self.tag_match(song, active_tags):
+                candidates.append(song)
+        if len(candidates) != 0:
+            return random.choice(candidates)
+        else:
+            return random.choice(self.collection.values())
+
+    def tag_match(self, song, active_tags):
+        for tag in active_tags:
+            if tag in song['tags']:
+                return True
 
 
 if __name__ == "__main__":
