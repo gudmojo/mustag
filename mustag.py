@@ -29,7 +29,7 @@ class Mustag:
                     file_path = os.path.join(root, file_name)
                     #print(file_path.encode('unicode-escape'))
                     item = self.library_add(file_path, file_name)
-                    self.create_music_metadata(item)
+                    self.write_metadata_to_file(item)
 
     def library_add(self, file_path, file_name):
         item = {
@@ -58,10 +58,10 @@ class Mustag:
         except:
             return "ERROR"
 
-    def create_music_metadata(self, item):
-        metadata_filename = item['filepath'] + self.meta_extension
+    def write_metadata_to_file(self, song):
+        metadata_filename = song['filepath'] + self.meta_extension
         f = io.open(metadata_filename, 'w', encoding='utf8')
-        json_str = unicode(json.dumps(item, ensure_ascii=False))
+        json_str = unicode(json.dumps(song, ensure_ascii=False))
         f.write(json_str)
         f.close()
 
