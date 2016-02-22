@@ -1,0 +1,11 @@
+{
+  "active_taglist": "list1",
+  "taglists": {
+    "list1": [
+      {"name": "work"},
+      {"name": "deep"},
+      {"name": "dinner"},
+      {"name": "party"}
+    ]
+  }
+}

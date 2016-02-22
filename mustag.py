@@ -61,6 +61,17 @@ class Mustag:
 
     # perform screen: toggle tags and songs will be randomly selected
 
+    def load_legal_tags(self):
+        f = io.open("legaltags.json", 'r', encoding='utf8')
+        str = f.read()
+        f.close()
+        self.legal_tags = json.loads(str)
+
+    def get_legal_tags(self):
+        active = self.legal_tags['active_taglist']
+        return self.legal_tags['taglists'][active]
+
+
 if __name__ == "__main__":
     t = Mustag()
     t.import_music()

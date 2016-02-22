@@ -18,8 +18,9 @@ class MainPanel(wx.Panel):
         self.frame = parent
         self.currentVolume = 50
         self.create_menu()
-        self.layout_controls()
         self.library = mustag.Mustag()
+        self.library.load_legal_tags()
+        self.layout_controls()
         self.library.load_meta_from_disk()
         self.populate_collection_ui()
 
@@ -70,7 +71,7 @@ class MainPanel(wx.Panel):
     def create_top_half(self):
         top_half_sizer = wx.BoxSizer(wx.HORIZONTAL)
         top_half_sizer.Add(self.create_list_area_sizer(), 0, wx.ALL, 5)
-        top_half_sizer.Add(self.create_song_details_sizer(), 0, wx.ALL, 5)
+        top_half_sizer.Add(self.create_song_details_area(), 0, wx.ALL, 5)
         return top_half_sizer
 
     def create_list_area_sizer(self):
@@ -79,7 +80,7 @@ class MainPanel(wx.Panel):
         list_area_sizer.Add(self.create_songlist_section(), 0, wx.ALL, 5)
         return list_area_sizer
 
-    def create_song_details_sizer(self):
+    def create_song_details_area(self):
         sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Song details:'), wx.VERTICAL)
         self.song_details = dict()
         self.song_details['filename'] = wx.StaticText(self, label="Filename")
@@ -88,6 +89,8 @@ class MainPanel(wx.Panel):
         sizer.Add(self.song_details['filename'], 0, wx.ALL, 5)
         sizer.Add(self.song_details['genre'], 0, wx.ALL, 5)
         sizer.Add(self.song_details['tags'], 0, wx.ALL, 5)
+        sizer.Add(self.create_details_tag_area(), 0, wx.ALL, 5)
+
         return sizer
 
     def create_bottom_half(self):
@@ -253,6 +256,19 @@ class MainPanel(wx.Panel):
     def show_song_details(self, item):
         self.song_details['filename'].Label = item['filename']
         self.song_details['genre'].Label = item['genre']
+
+    def create_details_tag_area(self):
+        sizer = wx.GridSizer(cols=2, vgap=0, hgap=0)
+        tags = self.library.get_legal_tags()
+        for tag in tags:
+            check_box = wx.CheckBox(self, label=tag['name'])
+            sizer.Add(check_box, 0, wx.ALL, 5)
+            self.frame.Bind(wx.EVT_CHECKBOX, self.on_song_details_tag_check, check_box)
+        return sizer
+
+    def on_song_details_tag_check(self, event):
+        item = event.EventObject
+        print item.Label + " " + str(item.Value)
 
 
 class MainFrame(wx.Frame):
