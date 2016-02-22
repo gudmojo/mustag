@@ -135,3 +135,7 @@ class PlayerPanel(wx.Panel):
         btn.SetInitialSize()
         btn.Bind(wx.EVT_BUTTON, handler)
         sizer.Add(btn, 0, wx.LEFT, 3)
+
+    def on_song_activated(self, song):
+        self.load_music(song['filepath'])
+        self.playPauseBtn.SetValue(True)
