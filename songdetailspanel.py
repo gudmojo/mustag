@@ -17,8 +17,11 @@ class SongDetailsPanel(wx.Panel):
     def create_details_tag_area(self):
         sizer = wx.GridSizer(cols=2, vgap=0, hgap=0)
         tags = self.library.get_legal_tags()
+        self.tag_checkboxes = dict()
         for tag in tags:
-            check_box = wx.CheckBox(self, label=tag['name'])
+            tagname = tag['name']
+            check_box = wx.CheckBox(self, label=tagname)
+            self.tag_checkboxes[tagname] = check_box
             sizer.Add(check_box, 0, wx.ALL, 5)
             self.Bind(wx.EVT_CHECKBOX, self.on_song_details_tag_check, check_box)
         return sizer
@@ -27,6 +30,8 @@ class SongDetailsPanel(wx.Panel):
         song = self.selected_song
         self.filename_label.Label = song['filename']
         self.genre_label.Label = song['genre']
+        for checkbox in self.tag_checkboxes.values():
+            checkbox.Value = checkbox.Label in self.selected_song['tags']
 
     def on_song_details_tag_check(self, event):
         checkbox_ctrl = event.EventObject
