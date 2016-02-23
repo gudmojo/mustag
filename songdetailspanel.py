@@ -6,14 +6,15 @@ class SongDetailsPanel(wx.Panel):
         wx.Panel.__init__(self, parent=parent)
         self.library = library
         self.selected_song = None
-        sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Song details:'), wx.VERTICAL)
+        self.main_sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Song details:'), wx.VERTICAL)
         dummy = "______________________________________________________________________________________________________"
         self.filename_label = wx.StaticText(self, label=dummy)
         self.genre_label = wx.StaticText(self, label=dummy)
-        sizer.Add(self.filename_label, 0, wx.ALL, 5)
-        sizer.Add(self.genre_label, 0, wx.ALL, 5)
-        sizer.Add(self.create_details_tag_area(), 0, wx.ALL, 5)
-        self.SetSizer(sizer)
+        self.main_sizer.Add(self.filename_label, 0, wx.ALL, 5)
+        self.main_sizer.Add(self.genre_label, 0, wx.ALL, 5)
+        self.tags_sizer = self.create_details_tag_area()
+        self.main_sizer.Add(self.tags_sizer, 0, wx.ALL, 5)
+        self.SetSizer(self.main_sizer)
 
     def create_details_tag_area(self):
         sizer = wx.GridSizer(cols=2, vgap=0, hgap=0)
@@ -53,3 +54,13 @@ class SongDetailsPanel(wx.Panel):
     def on_song_activated(self, song):
         self.selected_song = song
         self.show_song_details()
+
+    def on_legal_tags_refresh(self):
+        for check_box in self.tag_checkboxes.values():
+            self.Unbind(wx.EVT_CHECKBOX, check_box)
+        old_sizer = self.tags_sizer
+        old_sizer.Clear(delete_windows=True)
+        self.tags_sizer = self.create_details_tag_area()
+        self.main_sizer.Replace(old_sizer, self.tags_sizer)
+        old_sizer.Destroy()
+        self.Layout()

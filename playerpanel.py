@@ -20,11 +20,12 @@ class PlayerPanel(wx.Panel):
         self.currentVolume = 50
         self.Bind(wx.media.EVT_MEDIA_LOADED, self.on_song_is_loaded)
         self.Bind(wx.media.EVT_MEDIA_FINISHED, self.on_song_end)
-        bottom_half_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.right_part = self.create_player_area_sizer()
-        bottom_half_sizer.Add(self.right_part, 0, wx.ALL, 5)
-        bottom_half_sizer.Add(self.create_player_taglist(), 0, wx.ALL, 5)
-        self.SetSizer(bottom_half_sizer)
+        self.main_sizer.Add(self.right_part, 0, wx.ALL, 5)
+        self.taglist_sizer = self.create_player_taglist()
+        self.main_sizer.Add(self.taglist_sizer, 0, wx.ALL, 5)
+        self.SetSizer(self.main_sizer)
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer)
         self.timer.Start(100)
@@ -168,13 +169,25 @@ class PlayerPanel(wx.Panel):
         self.activate_song_event(song)
 
     def create_player_taglist(self):
-        sizer = wx.GridSizer(cols=2, vgap=0, hgap=0)
+        taglist_sizer = wx.GridSizer(cols=2, vgap=0, hgap=0)
         tags = self.library.get_legal_tags()
         self.tag_checkboxes = dict()
         for tag in tags:
             tagname = tag['name']
             check_box = wx.CheckBox(self, label=tagname)
             self.tag_checkboxes[tagname] = check_box
-            sizer.Add(check_box, 0, wx.ALL, 5)
+            taglist_sizer.Add(check_box, 0, wx.ALL, 5)
             self.Bind(wx.EVT_CHECKBOX, self.on_tag_check, check_box)
-        return sizer
+        return taglist_sizer
+
+    def on_legal_tags_refresh(self):
+        for check_box in self.tag_checkboxes.values():
+            self.Unbind(wx.EVT_CHECKBOX, check_box)
+            check_box.Hide()
+            #check_box.Destroy()
+        old_sizer = self.taglist_sizer
+        old_sizer.Clear(delete_windows=True)
+        self.taglist_sizer = self.create_player_taglist()
+        self.main_sizer.Replace(old_sizer, self.taglist_sizer)
+        old_sizer.Destroy()
+        self.Layout()

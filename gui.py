@@ -19,14 +19,24 @@ class MainPanel(wx.Panel):
         self.song_activated_listeners = []
         self.add_song_activated_listener(self.player_panel.on_song_activated)
         self.add_song_activated_listener(self.song_details_panel.on_song_activated)
+        self.legal_tags_refresh_listeners = []
+        self.add_legal_tags_refresh_listeners(self.player_panel.on_legal_tags_refresh)
+        self.add_legal_tags_refresh_listeners(self.song_details_panel.on_legal_tags_refresh)
         self.Layout()
 
     def add_song_activated_listener(self, listener):
         self.song_activated_listeners.append(listener)
 
+    def add_legal_tags_refresh_listeners(self, listener):
+        self.legal_tags_refresh_listeners.append(listener)
+
     def activate_song_handler(self, song):
         for listener in self.song_activated_listeners:
             listener(song)
+
+    def legal_tags_refresh(self):
+        for listener in self.legal_tags_refresh_listeners:
+            listener()
 
 
     def create_main_sizer(self):
@@ -59,7 +69,8 @@ class MainPanel(wx.Panel):
         pass
 
     def on_reload_settings_file(self, event):
-        pass
+        self.library.load_legal_tags()
+        self.legal_tags_refresh()
 
     def create_player_taglist(self):
         sizer = wx.StaticBoxSizer(wx.StaticBox(self, -1, 'Player taglist:'), wx.VERTICAL)
