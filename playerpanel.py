@@ -29,7 +29,6 @@ class PlayerPanel(wx.Panel):
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer)
         self.timer.Start(100)
-        self.playing_tags = []
 
     def on_song_is_loaded(self, event):
         self.play_it()
@@ -151,43 +150,24 @@ class PlayerPanel(wx.Panel):
         event.Skip()
 
     def on_tag_check(self, event):
-        checkbox_ctrl = event.EventObject
-        tag = checkbox_ctrl.Label
-        checked = checkbox_ctrl.Value
-        if checked:
-            self.playing_tags.append(tag)
-        else:
-            while True:
-                try:
-                    self.playing_tags.remove(tag)
-                except ValueError:
-                    break
+        ix = event.GetInt()
+        tag = self.checklistbox.Items[ix]
         event.Skip()
 
     def next_song(self):
-        song = self.library.next_song(self.playing_tags)
+        song = self.library.next_song(self.checklistbox.GetCheckedStrings())
         self.activate_song_event(song)
 
     def create_player_taglist(self):
-        taglist_sizer = wx.GridSizer(cols=2, vgap=0, hgap=0)
-        tags = self.library.get_legal_tags()
-        self.tag_checkboxes = dict()
-        for tag in tags:
-            tagname = tag['name']
-            check_box = wx.CheckBox(self, label=tagname)
-            self.tag_checkboxes[tagname] = check_box
-            taglist_sizer.Add(check_box, 0, wx.ALL, 5)
-            self.Bind(wx.EVT_CHECKBOX, self.on_tag_check, check_box)
-        return taglist_sizer
+        self.checklistbox = wx.CheckListBox(self)
+        self.init_checklistbox()
+        self.Bind(wx.EVT_CHECKLISTBOX, self.on_tag_check, self.checklistbox)
+        return self.checklistbox
+
+    def init_checklistbox(self):
+        self.checklistbox.Clear()
+        for tag in self.library.get_legal_tags():
+            self.checklistbox.Append(tag['name'])
 
     def on_legal_tags_refresh(self):
-        for check_box in self.tag_checkboxes.values():
-            self.Unbind(wx.EVT_CHECKBOX, check_box)
-            check_box.Hide()
-            #check_box.Destroy()
-        old_sizer = self.taglist_sizer
-        old_sizer.Clear(delete_windows=True)
-        self.taglist_sizer = self.create_player_taglist()
-        self.main_sizer.Replace(old_sizer, self.taglist_sizer)
-        old_sizer.Destroy()
-        self.Layout()
+        self.init_checklistbox()
